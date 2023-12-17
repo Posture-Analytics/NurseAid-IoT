@@ -128,7 +128,7 @@ void TemperatureDataBuffer::printBufferState() const {
     // If the buffer gets full
     if (isBufferFull()) {
         // Print an error message and restart the device
-        LogFatalln("Buffer full");
+        errorHandler.showError(ErrorType::BufferFull, true);
     }
 
     // Prints the buffer state
