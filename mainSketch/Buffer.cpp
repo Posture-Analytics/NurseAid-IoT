@@ -80,7 +80,7 @@ bool TemperatureDataBuffer::hasDateChanged() {
 
 bool TemperatureDataBuffer::isSampleNull(const temperatureData* sample) const {
     // Check if we have some non null data in the sample struct
-    for (int i = 0; i < FRAME_SIZE; i++) {
+    for (int i = 0; i < MLX90640_FRAME_SIZE; i++) {
         if (sample->temperaturePixels[i] != 0) {
             return false;
         }
@@ -153,7 +153,7 @@ void TemperatureDataBuffer::dumpBufferContent(int start, int end) const {
         LogDebug(sample->timestampMillis, " ");
 
         // Print the sample temperature sensor values
-        for (int j = 0; j < FRAME_SIZE; j++) {
+        for (int j = 0; j < MLX90640_FRAME_SIZE; j++) {
             LogDebug(sample->temperaturePixels[j], " ");
         }
 

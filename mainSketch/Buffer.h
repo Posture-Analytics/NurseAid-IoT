@@ -15,7 +15,7 @@
 #include <time.h>
 #include <Arduino.h>
 
-#define FRAME_SIZE 768 // 32 * 24
+#define MLX90640_FRAME_SIZE 768 // 32 * 24
 
 // Define the capacity of the buffer
 const int BUFFER_CAPACITY = 16;
@@ -31,7 +31,7 @@ struct temperatureData {
     unsigned long long timestampMillis = 0;
 
     // 4 bytes * 768 = 3072 bytes per sample
-    float temperaturePixels[FRAME_SIZE] = {0};
+    float temperaturePixels[MLX90640_FRAME_SIZE] = {0};
 };
 
 // Define a class to store the collected data
