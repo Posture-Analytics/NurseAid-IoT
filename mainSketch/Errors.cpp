@@ -5,8 +5,6 @@ Errors::Errors() {}
 
 void Errors::showError(ErrorType error, bool fatal) {
 
-    LogError("ERROR: ");
-
     // Print the error message
     switch (error) {
         case ErrorType::None:
