@@ -8,8 +8,6 @@
 #ifndef Errors_H_
 #define Errors_H_
 
-#include <FastLED.h>
-
 /**
  * Enumerate the errors
  * 
@@ -18,7 +16,7 @@
  * noDatabaseConnection: No database connection
  * noNTPdata: NTP Sync failed
  * bufferFull: Buffer full
- * externalADCInitFailure: External ADCs initialization failure
+ * MLX906040InitFailure: MLX90640 initialization failure
  */
 enum class ErrorType {
 	None,
