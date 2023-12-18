@@ -18,7 +18,7 @@
 #define FRAME_SIZE 768 // 32 * 24
 
 // Define the capacity of the buffer
-const int BUFFER_CAPACITY = 10;
+const int BUFFER_CAPACITY = 16;
 
 /**
  * Struct to organize the collected data
@@ -166,21 +166,21 @@ public:
      * @param sample the sample to check
      * @return true if the sample is null, false otherwise
      */
-    bool isSampleNull(const sensorData* sample) const;
+    bool isSampleNull(const temperatureData* sample) const;
 
     /**
      * Get the next sample from the buffer at the read index and increment it
      * 
      * @return a pointer to the next sample to be read
      */
-    const sensorData* getSample();
+    const temperatureData* getSample();
 
     /**
      * Get the next sample from the buffer at the write index and increment it
      * 
      * @return a pointer to the next sample to be written
      */
-    sensorData* getNewSample();
+    temperatureData* getNewSample();
 
     /**
      * Print the buffer state, the number of samples in the buffer and its capacity

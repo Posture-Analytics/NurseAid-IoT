@@ -110,6 +110,10 @@ const temperatureData* TemperatureDataBuffer::getSample() {
 temperatureData* TemperatureDataBuffer::getNewSample() {
     // If the buffer is full
     if (isBufferFull()) {
+        
+        // Print an error message and restart the device
+        errorHandler.showError(ErrorType::BufferFull, true);
+        
         // Return nullptr if the sample was not added to the buffer
         return nullptr;
     }
