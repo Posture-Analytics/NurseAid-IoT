@@ -1,4 +1,7 @@
+#include "time.h"
 #include <Adafruit_MLX90640.h>
+#include <WiFi.h>
+#include <Wire.h>
 
 // Uncomment the following line if you are using the M5StickC Plus
 #define M5STICKCPLUS
@@ -7,11 +10,24 @@
     #include <M5StickCPlus.h>
 #endif
 
-// Thermal camera object
-Adafruit_MLX90640 mlx;
+// DEBUG Flag, prints data to Serial instead of sending to the database
+#define DEBUG
 
-// Frame buffer to store one frame of temperatures
-float frame[32*24];
+#include "Errors.h"
+#include "Credentials.h"
+#include "Network.h"
+#include "Buffer.h"
+#include "DataReader.h"
+// #include "Database.h"
+
+// Create a errors object to handle them
+Errors errorHandler;
+
+// Create a buffer to store the data to be sent to the database
+TemperatureDataBuffer dataBuffer;
+
+// Create a DataReader object to read the data from the sensors
+DataReader dataReader;
 
 void setup() {
 
@@ -21,73 +37,39 @@ void setup() {
 
     Serial.begin(115200);
 
-    // Initialize the thermal camera
+    // Setup the thermal camera
     Serial.print("Initializing thermal camera... ");
-    if (!mlx.begin(MLX90640_I2CADDR_DEFAULT, &Wire)) {
+    if(!dataReader.setup(&dataBuffer)){
         Serial.println("MLX90640 not found!");
         while (1) delay(10);
     }
     Serial.println("MLX90640 online!");
 
-    // Print the camera details
-    Serial.print("Serial number: ");
-    Serial.print(mlx.serialNumber[0], HEX);
-    Serial.print(mlx.serialNumber[1], HEX);
-    Serial.println(mlx.serialNumber[2], HEX);
+    // Setup WiFi connection
+    setupWiFi();
+
+    // Sync the device's time with an NTP Server time
+    syncWithNTPTime();
     
-    // Switch modes (Interleaved/Chess)
-    //mlx.setMode(MLX90640_INTERLEAVED);
-    mlx.setMode(MLX90640_CHESS);
-    Serial.print("Current mode: ");
-    if (mlx.getMode() == MLX90640_CHESS) {
-        Serial.println("Chess");
-    } else {
-        Serial.println("Interleave");    
-    }
+    // Sanity delay
+    delay(100);
 
-    mlx.setResolution(MLX90640_ADC_18BIT);
-    Serial.print("Current resolution: ");
-    mlx90640_resolution_t res = mlx.getResolution();
-    switch (res) {
-        case MLX90640_ADC_16BIT: Serial.println("16 bit"); break;
-        case MLX90640_ADC_17BIT: Serial.println("17 bit"); break;
-        case MLX90640_ADC_18BIT: Serial.println("18 bit"); break;
-        case MLX90640_ADC_19BIT: Serial.println("19 bit"); break;
-    }
-
-    mlx.setRefreshRate(MLX90640_2_HZ);
-    Serial.print("Current frame rate: ");
-    mlx90640_refreshrate_t rate = mlx.getRefreshRate();
-    switch (rate) {
-        case MLX90640_0_5_HZ: Serial.println("0.5 Hz"); break;
-        case MLX90640_1_HZ: Serial.println("1 Hz"); break; 
-        case MLX90640_2_HZ: Serial.println("2 Hz"); break;
-        case MLX90640_4_HZ: Serial.println("4 Hz"); break;
-        case MLX90640_8_HZ: Serial.println("8 Hz"); break;
-        case MLX90640_16_HZ: Serial.println("16 Hz"); break;
-        case MLX90640_32_HZ: Serial.println("32 Hz"); break;
-        case MLX90640_64_HZ: Serial.println("64 Hz"); break;
-    }
+    errorHandler.showError(ErrorType::None);
 }
 
 
+int i = 0;
+
 void loop() {
-    delay(500);
+    dataReader.fillBuffer(&dataBuffer);
 
-    // Get a frame of temperatures
-    if (mlx.getFrame(frame) != 0) {
-        Serial.println("'getFrame()' failed");
-        return;
+    i++;
+
+    if (i == 2) {
+        i = 0;
+        Serial.println("Dumping buffer");
+        dataBuffer.dumpBufferContent();
     }
 
-    Serial.println();
-    Serial.println();
-    for (uint8_t h=0; h<24; h++) {
-        for (uint8_t w=0; w<32; w++) {
-            float t = frame[h*32 + w];
-            Serial.print(t, 1);
-            Serial.print(", ");
-        }
-    }
-    Serial.println();
+    delay(10);
 }
